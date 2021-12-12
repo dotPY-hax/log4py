@@ -14,3 +14,4 @@ if you do illegal stuff - fuck you<br>
 - Add more Attack classes for other services<br>
 - Add more of everything!<br>
 - Actual tests (lol)<br>
+- Get out of poc state
